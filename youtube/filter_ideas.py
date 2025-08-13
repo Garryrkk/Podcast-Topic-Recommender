@@ -1,55 +1,78 @@
 import pandas as pd
 import re
+import random
+import os
 
-# Load trending topics (excluding "other")
-topic_trends = pd.read_csv("topic_trends.csv")
+# ----------------------------------------
+# 🔹 Auto-detect paths based on current script
+# ----------------------------------------
+PROJECT_FOLDER = os.path.dirname(os.path.abspath(__file__))  # youtube folder
+CSV_PATH = os.path.join(PROJECT_FOLDER, "topic_trends.csv")  # trending topics CSV
+IDEAS_PATH = os.path.join(PROJECT_FOLDER, "ideas.md")       # ideas file in same folder
+OUTPUT_PATH = os.path.join(PROJECT_FOLDER, "podcast_topic_titles.md")  # output in same folder
+
+# ----------------------------------------
+# Create output folder if needed (optional)
+# ----------------------------------------
+os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
+
+# ----------------------------------------
+# 1️⃣ Load trending topics (excluding "other")
+# ----------------------------------------
+if not os.path.exists(CSV_PATH):
+    raise FileNotFoundError(f"❌ CSV not found at {CSV_PATH}")
+
+topic_trends = pd.read_csv(CSV_PATH)
 top_topics = topic_trends[topic_trends['topics'] != "other"].head(5)['topics'].tolist()
 
 print("🔥 Top 5 Topics Selected:")
 for t in top_topics:
     print("-", t)
 
-# Read ideas.md
-with open("ideas.md", "r", encoding="utf-8") as f:
+# ----------------------------------------
+# 2️⃣ Read ideas.md and filter based on top topics
+# ----------------------------------------
+if not os.path.exists(IDEAS_PATH):
+    raise FileNotFoundError(f"❌ ideas.md not found at {IDEAS_PATH}")
+
+with open(IDEAS_PATH, "r", encoding="utf-8") as f:
     ideas = f.readlines()
 
-filtered_ideas = []
+filtered_ideas_tuples = []
 for idea in ideas:
-    if any(topic in idea for topic in top_topics):
-        filtered_ideas.append(idea.strip())
+    for topic in top_topics:
+        if topic.lower() in idea.lower():
+            filtered_ideas_tuples.append((topic, idea.strip()))
+            break
 
-# Function to make social-ready title + hashtags
-def make_social_post(idea):
-    base_title = re.sub(r"\[.*?\]", "", idea).strip()  # remove brackets
-    hashtags = ["#PodcastIdeas", "#ContentCreation", "#MentalHealth", "#Trending", "#GenZ"]
-    return f"{base_title}\n{' '.join(hashtags)}\n"
+print(f"✅ {len(filtered_ideas_tuples)} filtered ideas found")
 
-# Create social-ready list
-social_posts = [make_social_post(idea) for idea in filtered_ideas]
+# ----------------------------------------
+# 3️⃣ Catchy Title Generator
+# ----------------------------------------
+class CatchyTitleGenerator:
+    def __init__(self):
+        self.hook_templates = [
+            "The Dark Side of {topic}",
+            "Why Everyone’s Talking About {topic}",
+            "Is {topic} Secretly Ruining Your Life?",
+            "3 Things You Didn’t Know About {topic}",
+            "How {topic} is Changing Gen Z Forever",
+            "The Truth About {topic}",
+            "Why {topic} Might Be Your Biggest Mistake",
+            "{topic}: What No One is Talking About",
+            "Is This the End of {topic}?",
+            "The Shocking Reality of {topic}"
+        ]
 
-# Save to top_ideas.md
-with open("top_ideas.md", "w", encoding="utf-8") as f:
-    for post in social_posts:
-        f.write(post + "\n")
+    def generate_titles(self, topic, n=3):
+        return [t.format(topic=topic) for t in random.sample(self.hook_templates, n)]
 
-print(f"✅ {len(social_posts)} filtered & social-ready ideas saved to top_ideas.md")
+title_generator = CatchyTitleGenerator()
 
-def make_catchy(title):
-    # Remove extra spaces
-    title = re.sub(r'\s+', ' ', title).strip()
-    # Shorten to 60 chars max without cutting words
-    if len(title) > 60:
-        cut = title[:57].rsplit(' ', 1)[0]
-        title = cut + "..."
-    # Add a power word if missing
-    power_words = ["Secrets", "Hacks", "Tips", "Guide", "Boost", "Proven", "Quick", "Easy"]
-    if not any(word.lower() in title.lower() for word in power_words):
-        title += " | Quick Tips"
-    # Capitalize each word
-    title = title.title()
-    return title
-
-# Hashtags per topic
+# ----------------------------------------
+# 4️⃣ Hashtags per topic
+# ----------------------------------------
 hashtags_map = {
     "Mental Health - Trauma": "#TraumaRecovery #HealingJourney #MentalHealthAwareness",
     "Mental Health - Stress": "#StressRelief #CalmMind #MentalHealth",
@@ -58,36 +81,31 @@ hashtags_map = {
     "Mental Health - Therapy": "#TherapyTalk #HealingJourney #SelfCare"
 }
 
-filtered_ideas_tuples = []
-for idea in ideas:
-    match = re.match(r"\[(.*?)\]\s*(.*)", idea)
-    if match:
-        topic = match.group(1).strip()
-        text = match.group(2).strip()
-        if topic in top_topics:
-            filtered_ideas_tuples.append((topic, text))
+# ----------------------------------------
+# 5️⃣ Combine ideas + catchy titles + hashtags
+# ----------------------------------------
+final_posts = []
+for topic, text in filtered_ideas_tuples:
+    catchy_titles = title_generator.generate_titles(text, n=3)
+    hashtags = hashtags_map.get(topic, "#PodcastIdeas #Trending #GenZ")
+    
+    final_posts.append({
+        "topic": topic,
+        "original_idea": text,
+        "catchy_titles": catchy_titles,
+        "hashtags": hashtags
+    })
 
-filtered_ideas = filtered_ideas_tuples
-
-
-# Save
-with open("top_ideas.md", "w", encoding="utf-8") as f:
-    f.write("\n".join(filtered_ideas_tuples))
-
-print(f"✅ {len(filtered_ideas_tuples)} social-optimized ideas saved to top_ideas.md")
-
-
-from title_generator import CatchyTitleGenerator
-
-generator = CatchyTitleGenerator()
-
-with open("filter_ideas.py", "r") as f:
-    topics = [line.strip() for line in f if line.strip()]
-
-with open("title_generator.py", "w") as f:
-    for topic in topics:
-        titles = generator.generate_titles(topic, n=5)
-        f.write(f"## {topic}\n")
-        for title in titles:
+# ----------------------------------------
+# 6️⃣ Save everything to one file
+# ----------------------------------------
+with open(OUTPUT_PATH, "w", encoding="utf-8") as f:
+    for post in final_posts:
+        f.write(f"## {post['topic']}\n")
+        f.write(f"Original Idea: {post['original_idea']}\n")
+        f.write("Catchy Titles:\n")
+        for title in post['catchy_titles']:
             f.write(f"- {title}\n")
-        f.write("\n")
+        f.write(f"Hashtags: {post['hashtags']}\n\n")
+
+print(f"✅ Saved {len(final_posts)} topic packs with catchy titles to {OUTPUT_PATH}")
