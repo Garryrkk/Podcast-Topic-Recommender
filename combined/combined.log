@@ -1,0 +1,31 @@
+2025-08-14 02:47:55,487 [INFO] \U0001f680 Starting Combined Topic Generator
+2025-08-14 02:47:55,502 [INFO] \U0001f525 Combined Top Topics:
+2025-08-14 02:47:55,502 [INFO] - Work & Study Life
+2025-08-14 02:47:55,502 [INFO] - Mental Health
+2025-08-14 02:47:55,502 [INFO] - Mental Health - Depression
+2025-08-14 02:47:55,502 [INFO] - Mental Health - Stress
+2025-08-14 02:47:55,504 [INFO] - Self Care
+2025-08-14 02:47:55,504 [INFO] - Mental Health - Therapy
+2025-08-14 02:47:55,504 [INFO] - Mental Health - Trauma
+2025-08-14 02:47:55,504 [INFO] - Mental Health - Anxiety
+2025-08-14 02:47:55,584 [INFO] \u2705 Total combined ideas: 3246
+2025-08-14 02:47:55,605 [INFO] \u2705 Saved combined topics to C:\Users\Garima kalra\OneDrive\Documents\vs\portfolio projects\podcast topic recommender\Podcast-Topic-Recommender\combined\podcast_topic_titles.md
+2025-08-14 02:47:55,605 [INFO] \U0001f3c1 Process Completed
+2025-08-14 03:07:31,066 [INFO] \U0001f680 Starting Combined Topic Generator
+2025-08-14 03:07:31,077 [INFO] \U0001f525 Combined Top Topics:
+2025-08-14 03:07:31,078 [INFO] - Work & Study Life
+2025-08-14 03:07:31,078 [INFO] - Mental Health - Stress
+2025-08-14 03:07:31,078 [INFO] - Self Care
+2025-08-14 03:07:31,079 [INFO] - Mental Health - Depression
+2025-08-14 03:07:31,079 [INFO] - Mental Health - Therapy
+2025-08-14 03:07:31,079 [INFO] - Mental Health - Trauma
+2025-08-14 03:07:31,079 [INFO] - Mental Health
+2025-08-14 03:07:31,079 [INFO] - Mental Health - Anxiety
+2025-08-14 03:07:31,154 [INFO] \u2705 Total combined ideas: 3246
+2025-08-14 03:07:31,178 [INFO] \u2705 Saved combined topics to C:\Users\Garima kalra\OneDrive\Documents\vs\portfolio projects\podcast topic recommender\Podcast-Topic-Recommender\combined\podcast_topic_titles.md
+2025-08-14 03:07:31,178 [INFO] \U0001f3c1 Process Completed
+2025-08-14 04:25:21,407 [ERROR] Form data requires "python-multipart" to be installed. 
+You can install "python-multipart" with: 
+
+pip install python-multipart
+
