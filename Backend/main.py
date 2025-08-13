@@ -1,19 +1,27 @@
-from fastapi import FastAPI
-import json
-from pathlib import Path
+# backend/main.py
+import sys
+import os
+from fastapi import FastAPI, UploadFile, File
+import pandas as pd
 
-app = FastAPI()
+# Add project root to sys.path so we can import combined
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-# Define an endpoint to fetch Reddit threads
-@app.get("/reddit_threads")
-def get_reddit_threads():
-    # Path to JSON file (relative to this file's directory)
-    json_path = Path(__file__).parent / "Podcast-Topic-Recommender" / "reddit_scraper" / "reddit_threads.json"
-    
-    if not json_path.exists():
-        return {"error": f"File not found: {json_path}"}
-    
-    with open(json_path, "r", encoding="utf-8") as f:
-        reddit_data = json.load(f)
-    
-    return reddit_data
+from combined.combined import load_csv_safe, generate_combined_topics
+
+app = FastAPI(title="Podcast Topic Recommender API")
+
+@app.get("/")
+def home():
+    return {"message": "Podcast Topic Recommender API is running!"}
+
+@app.post("/upload_csv/")
+async def upload_csv(file: UploadFile = File(...)):
+    df = pd.read_csv(file.file)
+    topics = df.iloc[:, 0].dropna().tolist()
+    return {"uploaded_topics": topics}
+
+@app.get("/generate")
+def generate_topics():
+    topics = generate_combined_topics()
+    return {"combined_topics": topics, "count": len(topics)}
